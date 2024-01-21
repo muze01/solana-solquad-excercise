@@ -41,6 +41,11 @@ pub mod solquad {
         let pool_account = &mut ctx.accounts.pool_account;
         let project_account = &ctx.accounts.project_account;
 
+         // Account Data Validation To Check if the project is already in the pool
+        if pool_account.projects.contains(&project_account.project_owner) {
+            return Err(ErrorCode::ProjectAlreadyInPool.into());
+        }
+
         pool_account.projects.push(
             project_account.project_owner
         );
@@ -90,10 +95,8 @@ pub mod solquad {
             } else {
                 distributable_amt = 0;
             }
-
             project_account.distributed_amt = distributable_amt;
         }
-
         Ok(())
     }
 }
@@ -210,4 +213,10 @@ pub struct Voter {
     pub voter: Pubkey,
     pub voted_for: Pubkey,
     pub token_amount: u64
+}
+
+#[error_code]
+pub enum ErrorCode {
+    #[msg("Project is already in the pool")]
+    ProjectAlreadyInPool,
 }
